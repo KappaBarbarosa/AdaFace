@@ -49,7 +49,7 @@ class MTCNN():
         warped_face = warp_and_crop_face(np.array(img), facial5points, self.refrence, crop_size=self.crop_size)
         return Image.fromarray(warped_face)
 
-    def align_multi(self, img, limit=None):
+    def align_multi(self, img, limit=None,isarray=False):
         boxes, landmarks = self.detect_faces(img, self.min_face_size, self.thresholds, self.nms_thresholds, self.factor)
         if limit:
             boxes = boxes[:limit]
@@ -58,7 +58,10 @@ class MTCNN():
         for landmark in landmarks:
             facial5points = [[landmark[j], landmark[j + 5]] for j in range(5)]
             warped_face = warp_and_crop_face(np.array(img), facial5points, self.refrence, crop_size=self.crop_size)
-            faces.append(Image.fromarray(warped_face))
+            if(isarray):
+                faces.append(warped_face)
+            else:
+                faces.append(Image.fromarray(warped_face))
         return boxes, faces
 
     def detect_faces(self, image, min_face_size, thresholds, nms_thresholds, factor):
