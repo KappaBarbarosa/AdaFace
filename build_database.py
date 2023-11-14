@@ -2,7 +2,7 @@ import net
 import torch
 import os
 from face_alignment import align
-from yolov7_face.align import YOLO_FACE
+from yolo_face.align import YOLO_FACE
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     isyolo = True
     start = time.time()
     if isyolo:
-        yoloface = YOLO_FACE('yolov7_face/yolov7-tiny.pt',device=device)
+        yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device)
         print('face detection model loaded')
         start = time.time()
         for ID in ID_list:

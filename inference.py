@@ -5,7 +5,7 @@ from face_alignment import align
 import numpy as np
 import time
 import matplotlib.pyplot as plt
-from yolov7_face.align import YOLO_FACE
+from yolo_face.align import YOLO_FACE
 import cv2
 adaface_models = {
     'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     face=[]
     isyolo = True
     test_image = sorted(os.listdir(test_image_path))
-    yoloface = YOLO_FACE('yolov7_face/yolov7-tiny.pt',device=device) if isyolo else None
+    yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device) if isyolo else None
     ct=0
     for fname in test_image:
         path = os.path.join(test_image_path, fname)
