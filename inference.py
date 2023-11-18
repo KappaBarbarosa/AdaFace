@@ -7,6 +7,12 @@ import time
 import matplotlib.pyplot as plt
 from yolo_face.align import YOLO_FACE
 import cv2
+import warnings
+import sys
+
+# ignore all the SyntaxWarning
+warnings.filterwarnings("ignore", category=SyntaxWarning)
+
 adaface_models = {
     'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
     'ir_101':"pretrained/adaface_ir101_ms1mv2.ckpt",
@@ -43,54 +49,42 @@ def save_database_heatmap(data):
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_pretrained_model('ir_101').to(device)
-    test_image_path = 'face_alignment/test_images'
-    features = []
-    face=[]
-    isyolo = True
-    test_image = sorted(os.listdir(test_image_path))
-    yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device) if isyolo else None
-    ct=0
-    for fname in test_image:
-        path = os.path.join(test_image_path, fname)
-        with torch.no_grad():
-            print(f'detecting {path}s')
-            if isyolo:
-                aligned_bgr_imgs = yoloface.detect(path)
-                for i,img in enumerate(aligned_bgr_imgs) :
-                    cv2.imwrite(f'deteced_{ct}_{i}.jpg',img)
-                    bgr_tensor_input = to_input(img,True).to(device)
-                    feature, _ = model(bgr_tensor_input)
-                    features.append(feature)
-                    face.append(f'deteced_{ct}_{i}.jpg')
-                ct+=1
-            else:
-                aligned_rgb_img = align.get_aligned_face(path, isarray=True)
-                if(aligned_rgb_img is not None):
-                    bgr_tensor_input = to_input(aligned_rgb_img,False).to(device)
-                    feature, _ = model(bgr_tensor_input)
-                    features.append(feature)
     database_dir = 'face_database/database.pt'
     if(os.path.exists(database_dir)):
         database = torch.load(database_dir).to(device)
         ID_list = sorted(os.listdir('face_database/ID'))
-        start_time = time.time()
-        with torch.no_grad():
-            similarity_scores = torch.cat(features) @ database.T
-        end_time = time.time()
-        execution_time = end_time - start_time
-        print(f"computing time: {execution_time} seconds")
-        score = similarity_scores.cpu().detach().numpy()
-        save_database_heatmap(score)
-        max_index = np.argmax(score, axis=1)
-        for i,id in enumerate(max_index):
-            print(face[i])
-            if(score[i][id] >= 0.4):
-                print(f'detetct {ID_list[int(id/3)]} with similarity score {score[i][id]}')
-            else:
-                print("no ensured answer")
     else:
-        with torch.no_grad():
-            similarity_scores = torch.cat(features) @ torch.cat(features).T
-        print(similarity_scores)
-    
+        print("ERROR: Face database not found. Please create a face database first.")
+        sys.exit(1)
+    features = []
+    face=[]
+    isyolo = True
+    cap = cv2.VideoCapture(0) # load from webcam
+    yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device) if isyolo else None
+    ct=0
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
 
+        with torch.no_grad():
+            aligned_rgb_img = align.get_aligned_face(frame, isarray=True)
+            if aligned_rgb_img is not None:
+                bgr_tensor_input = to_input(aligned_rgb_img, False).to(device)
+                feature, _ = model(bgr_tensor_input)
+
+                # calculate score and recognize
+                with torch.no_grad():
+                    similarity_scores = feature @ database.T
+                max_index = torch.argmax(similarity_scores).item()
+                #print(f'Similarity Score: {similarity_scores[0, max_index]:.2f}')
+                if similarity_scores[0, max_index] >= 0.4:
+                    print(f'Detected: {ID_list[max_index]}')
+                else:
+                    print("No recognized face")
+        cv2.imshow('Webcam', frame)  
+        # terminate
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+    cap.release()
+    cv2.destroyAllWindows()

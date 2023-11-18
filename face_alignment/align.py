@@ -17,9 +17,10 @@ def add_padding(pil_img, top, right, bottom, left, color=(0,0,0)):
     result.paste(pil_img, (left, top))
     return result
 
-def get_aligned_face(image_path, rgb_pil_image=None, isarray=False):
+def get_aligned_face(frame, rgb_pil_image=None, isarray=False):
     if rgb_pil_image is None:
-        img = Image.open(image_path).convert('RGB')
+        #img = Image.open(image_path).convert('RGB')
+        img = Image.fromarray(frame).convert('RGB')
     else:
         assert isinstance(rgb_pil_image, Image.Image), 'Face alignment module requires PIL image or path to the image'
         img = rgb_pil_image
