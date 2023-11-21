@@ -298,7 +298,10 @@ def warp_and_crop_face(src_img,
 #    #print(('type(tfm):' + str(type(tfm)))
 #    #print(('tfm.dtype:' + str(tfm.dtype))
 #    #print( tfm
-
-    face_img = cv2.warpAffine(src_img, tfm, (crop_size[0], crop_size[1]))
+    if src_img.shape[0] > 0 and src_img.shape[1] > 0:
+        face_img = cv2.warpAffine(src_img, tfm, (crop_size[0], crop_size[1]))
+    else:
+        print("Error: Source image has invalid dimensions.")
+        # face_img = cv2.warpAffine(src_img, tfm, (crop_size[0], crop_size[1]))
 
     return face_img

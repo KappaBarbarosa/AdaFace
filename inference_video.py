@@ -49,42 +49,17 @@ def save_database_heatmap(data):
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_pretrained_model('ir_50').to(device)
-    database_dir = 'face_database/database_ir50.pt'
+    database_dir = 'face_database/database.pt'
     if(os.path.exists(database_dir)):
         database = torch.load(database_dir).to(device)
         ID_list = sorted(os.listdir('face_database/ID'))
     else:
         print("ERROR: Face database not found. Please create a face database first.")
         sys.exit(1)
+    test_image_path = 'face_alignment/test_images'
+    # cap = cv2.VideoCapture(0) # load from webcam
     features = []
     face=[]
     isyolo = True
-    cap = cv2.VideoCapture(0) # load from webcam
     yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device) if isyolo else None
-    ct=0
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-
-        with torch.no_grad():
-            aligned_rgb_img = align.get_aligned_face(frame, isarray=True)
-            if aligned_rgb_img is not None:
-                bgr_tensor_input = to_input(aligned_rgb_img, False).to(device)
-                feature, _ = model(bgr_tensor_input)
-
-                # calculate score and recognize
-                with torch.no_grad():
-                    similarity_scores = feature @ database.T
-                max_index = torch.argmax(similarity_scores).item()
-                print(f'Similarity Score: {similarity_scores[0, max_index]:.2f}')
-                if similarity_scores[0, max_index] >= 0.4:
-                    print(f'Detected: {ID_list[int(max_index/3)]}')
-                else:
-                    print("No recognized face")
-        cv2.imshow('Webcam', frame)  
-        # terminate
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+    yoloface.video_detect(0,fr_model= model,view_img= True,database=database,ID_list=ID_list)

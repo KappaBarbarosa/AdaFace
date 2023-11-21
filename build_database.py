@@ -72,7 +72,7 @@ if __name__ == '__main__':
     print(f'building time: {time.time()-start}')
     database_dir = 'face_database/database_ir50.pt'
     features = torch.cat(features)
-    # torch.save(features,database_dir)
+    torch.save(features,database_dir)
     similarity_scores = features @ features.T
     save_database_heatmap(similarity_scores.cpu().detach().numpy())
     print('build success')

@@ -56,35 +56,39 @@ if __name__ == '__main__':
     else:
         print("ERROR: Face database not found. Please create a face database first.")
         sys.exit(1)
+    test_image_path = 'face_alignment/test_images'
     features = []
     face=[]
-    isyolo = True
+    yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device)
     cap = cv2.VideoCapture(0) # load from webcam
-    yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device) if isyolo else None
+    
+    assert cap.isOpened(), f'Failed to open {0}'
     ct=0
+    terminate = False
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-
         with torch.no_grad():
-            aligned_rgb_img = align.get_aligned_face(frame, isarray=True)
-            if aligned_rgb_img is not None:
-                bgr_tensor_input = to_input(aligned_rgb_img, False).to(device)
-                feature, _ = model(bgr_tensor_input)
-
-                # calculate score and recognize
-                with torch.no_grad():
-                    similarity_scores = feature @ database.T
+            aligned_bgr_imgs = yoloface.frame_detect(frame)
+            # print(type(aligned_bgr_imgs))
+            for i,img in enumerate(aligned_bgr_imgs) :
+                # cv2.imwrite("detect_img.jpg",img)
+                bgr_tensor_input = to_input(img,True).to(device)
+                feature, _ = model(bgr_tensor_input)    
+                similarity_scores = feature @ database.T
                 max_index = torch.argmax(similarity_scores).item()
-                print(f'Similarity Score: {similarity_scores[0, max_index]:.2f}')
+                # print(similarity_scores)
                 if similarity_scores[0, max_index] >= 0.4:
                     print(f'Detected: {ID_list[int(max_index/3)]}')
                 else:
                     print("No recognized face")
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    terminate=True
+                    break           
         cv2.imshow('Webcam', frame)  
         # terminate
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        if (cv2.waitKey(1) & 0xFF == ord('q')) | terminate:
             break
     cap.release()
     cv2.destroyAllWindows()

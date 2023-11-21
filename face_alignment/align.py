@@ -1,6 +1,6 @@
 import sys
 import os
-
+ 
 from face_alignment import mtcnn
 import argparse
 from PIL import Image
@@ -8,7 +8,7 @@ from tqdm import tqdm
 import random
 from datetime import datetime
 mtcnn_model = mtcnn.MTCNN(device='cuda:0', crop_size=(112, 112))
-
+ 
 def add_padding(pil_img, top, right, bottom, left, color=(0,0,0)):
     width, height = pil_img.size
     new_width = width + right + left
@@ -16,10 +16,10 @@ def add_padding(pil_img, top, right, bottom, left, color=(0,0,0)):
     result = Image.new(pil_img.mode, (new_width, new_height), color)
     result.paste(pil_img, (left, top))
     return result
-
+ 
 def get_aligned_face(frame, rgb_pil_image=None, isarray=False):
     if rgb_pil_image is None:
-        #img = Image.open(image_path).convert('RGB')
+        #img = Image.open(frame).convert('RGB')
         img = Image.fromarray(frame).convert('RGB')
     else:
         assert isinstance(rgb_pil_image, Image.Image), 'Face alignment module requires PIL image or path to the image'
@@ -32,7 +32,7 @@ def get_aligned_face(frame, rgb_pil_image=None, isarray=False):
         print('Face detection Failed due to error.')
         print(e)
         face = None
-
+ 
     return face
-
-
+ 
+ 
