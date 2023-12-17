@@ -76,6 +76,3 @@ if __name__ == '__main__':
     similarity_scores = features @ features.T
     save_database_heatmap(similarity_scores.cpu().detach().numpy())
     print('build success')
-
-    
-

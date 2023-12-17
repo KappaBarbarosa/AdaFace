@@ -6,7 +6,7 @@ python main.py \
     --prefix ir50_ms1mv2_adaface \
     --use_wandb \
     --use_mxrecord \
-    --gpus 2 \
+    --gpus 1 \
     --use_16bit \
     --arch ir_50 \
     --batch_size 512 \

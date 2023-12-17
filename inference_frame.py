@@ -9,6 +9,7 @@ from yolo_face.align import YOLO_FACE
 import cv2
 import warnings
 import sys
+from yolo_face.utils.plots import colors, plot_one_box
 
 # ignore all the SyntaxWarning
 warnings.filterwarnings("ignore", category=SyntaxWarning)
@@ -70,7 +71,7 @@ if __name__ == '__main__':
         if not ret:
             break
         with torch.no_grad():
-            aligned_bgr_imgs = yoloface.frame_detect(frame)
+            aligned_bgr_imgs, info = yoloface.frame_detect(frame)
             # print(type(aligned_bgr_imgs))
             for i,img in enumerate(aligned_bgr_imgs) :
                 # cv2.imwrite("detect_img.jpg",img)
@@ -80,6 +81,8 @@ if __name__ == '__main__':
                 max_index = torch.argmax(similarity_scores).item()
                 # print(similarity_scores)
                 if similarity_scores[0, max_index] >= 0.4:
+                    *xyxy, conf, cls= info[i]
+                    yoloface.plot_one_box(xyxy, frame, cls,ID_list[int(max_index/3)])
                     print(f'Detected: {ID_list[int(max_index/3)]}')
                 else:
                     print("No recognized face")

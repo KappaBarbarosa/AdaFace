@@ -59,7 +59,7 @@ if __name__ == '__main__':
     features = []
     face=[]
     isyolo = True
-    cap = cv2.VideoCapture(0) # load from webcam
+    cap = cv2.VideoCapture(cv2.CAP_DSHOW) # load from webcam
     yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device) if isyolo else None
     ct=0
     while True:
