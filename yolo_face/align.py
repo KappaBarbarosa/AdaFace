@@ -201,8 +201,7 @@ class YOLO_FACE:
                     scale_coords(img.shape[2:], det[:, 6:], im0.shape, kpt_label=5, step=3)
                     for det_index, (*xyxy, conf, cls)in enumerate(reversed(det[:, :6])):
                         kpts = det[det_index, 6:]
-                        
-                        facial5points = kpt_tensor_to_list(det[det_index, 6:])
+                        facial5points = kpt_tensor_to_list(det[len(det) - det_index - 1, 6:])
                         warped_face = warp_and_crop_face(np.array(im0), facial5points, self.refrence, crop_size=self.crop_size)
                         bgr_tensor_input = to_input(warped_face,True).to(self.device)
                         feature, _ = fr_model(bgr_tensor_input)    
