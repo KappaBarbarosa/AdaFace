@@ -212,13 +212,13 @@ class YOLO_FACE:
                             max_index -= 1
                         if similarity_scores[0, max_index] >= 0.4:
                             print("max index: ", max_index)
-                            print(f'Detected: {ID_list[int(max_index/3)-1]}')
+                            print(f'Detected: {ID_list[int(max_index/3)]}')
                             # print("xyxy= ", xyxy)
                             cur_time = time.time()
                             if cur_time - cam_start_time >= 10:
                                 if local_ID[int(max_index/3)] == 0:
                                     print("in")
-                                    student_arrive(str(ID_list[int(max_index/3)-1]), db)
+                                    student_arrive(str(ID_list[int(max_index/3)]), db)
                                     local_ID[int(max_index/3)] = 1
                                 cam_start_time = cur_time
                             # save_one_box(xyxy, im0, file=ID_list[int(max_index/3)])
