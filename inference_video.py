@@ -12,51 +12,9 @@ import sys
 # ignore all the SyntaxWarning
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 
-# firebase functions
-# import firebase_admin
-# from firebase_admin import credentials
-# from firebase_admin import firestore
-# from datetime import datetime
-# import pytz
-# import asyncio
-
-# cred = credentials.Certificate("./serviceAccountKey.json")
-# firebase_admin.initialize_app(cred)
-# db = firestore.client()
-# def create_class(class_date):
-#     student_id_list_ref = db.collection("students").document("student_id_list")
-#     class_doc_ref = db.collection("classes").document(str(class_date))
-#     class_doc_ref.set(student_id_list_ref.get().to_dict())
-
-# def student_arrive(student_id):
-#     cur_date = datetime.now(pytz.timezone('Asia/Taipei')).strftime("%m%d")
-#     cur_time = datetime.now(pytz.timezone('Asia/Taipei')).strftime("%H:%M:%S")
-#     class_ref = db.collection("classes").document(str(cur_date))
-#     snapshot = class_ref.get()
-#     snapshot_dict = snapshot.to_dict()
-#     class_update_data = {
-#         student_id: cur_time
-#     }
-#     if class_ref.get().exists == False:
-#         create_class(cur_date)
-#     elif type(snapshot_dict[student_id]) == str:
-#         print(f"{student_id} had arrived at {snapshot_dict[student_id]}")
-#         return
-#     class_ref.update(class_update_data)
-#     ##########
-#     student_document_ref = db.collection("students").document("student_id_list").collection("ML").document(student_id)
-#     student_update_data = {
-#         cur_date : cur_time
-#     }
-#     if student_document_ref.get().exists == False:
-#         student_document_ref.set(student_update_data)
-#     else:
-#         student_document_ref.update(student_update_data)
-
-#     print(f"update successed. {student_id} arrives at {cur_date} {cur_time}")
-
 adaface_models = {
-    'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
+    'ir_50':"pretrained/epoch=14-step=166804.ckpt",
+    # 'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
     'ir_101':"pretrained/adaface_ir101_ms1mv2.ckpt",
 }
 
@@ -91,10 +49,10 @@ def save_database_heatmap(data):
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_pretrained_model('ir_50').to(device)
-    database_dir = './face_database/database_ir50.pt'
+    database_dir = './database_result/database.pt'
     if(os.path.exists(database_dir)):
         database = torch.load(database_dir).to(device)
-        ID_list = sorted(os.listdir('face_database/ID'))
+        ID_list = sorted(os.listdir('database_result/ID'))
         print("ID_list's len: ", len(ID_list))
     else:
         print("ERROR: Face database not found. Please create a face database first.")

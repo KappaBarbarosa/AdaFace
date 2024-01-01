@@ -35,6 +35,7 @@ def create_class(class_date, db):
 def student_arrive(student_id, db):
     cur_date = datetime.now(pytz.timezone('Asia/Taipei')).strftime("%m%d")
     cur_time = datetime.now(pytz.timezone('Asia/Taipei')).strftime("%H:%M:%S")
+    
     class_ref = db.collection("classes").document(str(cur_date))
     snapshot = class_ref.get()
     snapshot_dict = snapshot.to_dict()
@@ -206,24 +207,32 @@ class YOLO_FACE:
                         bgr_tensor_input = to_input(warped_face,True).to(self.device)
                         feature, _ = fr_model(bgr_tensor_input)    
                         similarity_scores = feature @ database.T
+                        
                         max_index = torch.argmax(similarity_scores).item()
-                        if max_index == 36:
+                        
+                        if max_index == len(ID_list)*3:
                             max_index -= 1
                         if similarity_scores[0, max_index] >= 0.4:
                             print("max index: ", max_index)
                             print(f'Detected: {ID_list[int(max_index/3)]}')
                             # print("xyxy= ", xyxy)
-                            cur_time = time.time()
-                            if cur_time - cam_start_time >= 10:
-                                if local_ID[int(max_index/3)] == 0:
-                                    print("in")
-                                    student_arrive(str(ID_list[int(max_index/3)]), db)
-                                    local_ID[int(max_index/3)] = 1
-                                cam_start_time = cur_time
+                            # cur_time = time.time()
+                            # if cur_time - cam_start_time >= 3:
+                            #     if local_ID[int(max_index/3)] == 0:
+                            #         # print("in")
+                            #         student_arrive(str(ID_list[int(max_index/3)]), db)
+                            #         local_ID[int(max_index/3)] = 1
+                            #     cam_start_time = cur_time
                             # save_one_box(xyxy, im0, file=ID_list[int(max_index/3)])
-                            plot_one_box(xyxy, im0, label=ID_list[int(max_index/3)], color=colors(int(max_index/3), True), kpts=kpts, steps=3, orig_shape=im0.shape[:2])
+                            # ID_list[int(max_index/3)]
+                            
+                            print("similarity: ", similarity_scores[0, max_index])
+                            similarity_scores = similarity_scores.detach().cpu().numpy()
+                            print_label =  ID_list[int(max_index/3)]+ ":" + str(similarity_scores[0, max_index].round(2))
+                            plot_one_box(xyxy, im0, label=print_label, color=colors(int(max_index/3), True), kpts=kpts, steps=3, orig_shape=im0.shape[:2])
                         else:
-                            print("No recognized face")           
+                            print("No recognized face")
+                            plot_one_box(xyxy, im0, label="unknown", color=colors(int(max_index/3), True), kpts=kpts, steps=3, orig_shape=im0.shape[:2])
                 if view_img:
                     cv2.imshow('Webcam', im0)
                     cv2.waitKey(1) 
