@@ -1,7 +1,6 @@
 import net
 import torch
 import os
-from face_alignment import align
 import numpy as np
 import time
 import matplotlib.pyplot as plt
@@ -57,10 +56,10 @@ if __name__ == '__main__':
     else:
         print("ERROR: Face database not found. Please create a face database first.")
         sys.exit(1)
-    test_image_path = 'face_alignment/test_images'
+    test_image_path = 'test_images'
     features = []
     face=[]
-    yoloface = YOLO_FACE('yolo_face/yolov7-tiny.pt',device=device)
+    yoloface = YOLO_FACE('pretrained/yolov7-tiny.pt',device=device)
     cap = cv2.VideoCapture(0) # load from webcam
     
     assert cap.isOpened(), f'Failed to open {0}'
@@ -72,14 +71,11 @@ if __name__ == '__main__':
             break
         with torch.no_grad():
             aligned_bgr_imgs, info = yoloface.frame_detect(frame)
-            # print(type(aligned_bgr_imgs))
             for i,img in enumerate(aligned_bgr_imgs) :
-                # cv2.imwrite("detect_img.jpg",img)
                 bgr_tensor_input = to_input(img,True).to(device)
                 feature, _ = model(bgr_tensor_input)    
                 similarity_scores = feature @ database.T
                 max_index = torch.argmax(similarity_scores).item()
-                # print(similarity_scores)
                 if similarity_scores[0, max_index] >= 0.4:
                     *xyxy, conf, cls= info[i]
                     yoloface.plot_one_box(xyxy, frame, cls,ID_list[int(max_index/3)])

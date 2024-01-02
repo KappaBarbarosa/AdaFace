@@ -238,16 +238,10 @@ if __name__ == '__main__':
     print('fusion_method', args.fusion_method)
 
     adaface_models = {
-        'ir18_casia': ["../pretrained/adaface_ir18_casia.ckpt", 'ir_18'],
-        'ir18_webface4m': ["../pretrained/adaface_ir18_webface4m.ckpt", 'ir_18'],
-        'ir18_vgg2': ["../pretrained/adaface_ir18_vgg2.ckpt", 'ir_18'],
-        'ir50_casia': ["../pretrained/adaface_ir50_casia.ckpt", 'ir_50'],
-        'ir50_webface4m': ["../pretrained/adaface_ir50_webface4m.ckpt", 'ir_50'],
-        'ir50_ms1mv2': ["../pretrained/adaface_ir50_ms1mv2.ckpt", 'ir_50'],
-        'ir101_ms1mv2': ["../pretrained/adaface_ir101_ms1mv2.ckpt", 'ir_101'],
-        'ir101_ms1mv3': ["../pretrained/adaface_ir101_ms1mv3.ckpt", 'ir_101'],
-        'ir101_webface4m': ["../pretrained/adaface_ir101_webface4m.ckpt", 'ir_101'],
-        'ir101_webface12m': ["../pretrained/adaface_ir101_webface12m.ckpt", 'ir_101'],
+        'ir50_casia': ["pretrained/adaface_ir50_casia.ckpt", 'ir_50'],
+        'ir50_ms1mv2': ["pretrained/adaface_ir50_ms1mv2.ckpt", 'ir_50'],
+        'ir50_masked_ms1mv2':["pretrained/adaface_ir50_masked_ms1mv2.ckpt","ir_50"],
+        'ir50_masked_casia':["pretrained/adaface_ir50_masked_casia_v2.ckpt","ir_50"],
     }
     assert args.model_name in adaface_models
     save_path = './result/{}/{}'.format(args.dataset_name, args.model_name)

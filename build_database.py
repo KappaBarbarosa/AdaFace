@@ -1,7 +1,6 @@
 import net
 import torch
 import os
-from face_alignment import align
 from yolo_face.align import YOLO_FACE
 import numpy as np
 import matplotlib.pyplot as plt
@@ -45,10 +44,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--fr_weights', nargs='+', type=str, default='pretrained/epoch=14-step=166804.ckpt', help='face recongnition model.ckpt path(s)')
     parser.add_argument('--fd_weights', nargs='+', type=str, default='pretrained/yolov7-tiny.pt', help='face detection model.pt path(s)')
-    parser.add_argument('--isyolo', type=bool,default=True,help='use yolo face or mtcnn')
     parser.add_argument('--arch', type=str,default='ir_50',help='Adaface architecture')
-    parser.add_argument('--database_path', type=str,default='database_result',help='face database path')
-    parser.add_argument('--database_savedir', type=str,default='database_result',help='face database ckpt save path')
+    parser.add_argument('--database_path', type=str,default='face_database',help='face database path')
+    parser.add_argument('--database_savedir', type=str,default='face_database',help='face database ckpt save path')
     args = parser.parse_args()
     print(args)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -58,28 +56,18 @@ if __name__ == '__main__':
     features = []
     ID_list = sorted(os.listdir(ID_list_dir))
     start = time.time()
-    if args.isyolo:
-        yoloface = YOLO_FACE(args.fd_weights,device=device)
-        print('face detection model loaded')
-        start = time.time()
-        for ID in ID_list:
-            path = os.path.join(ID_list_dir, ID)
-            aligned_bgr_imgs=yoloface.detect(path)
-            for i,img in enumerate(aligned_bgr_imgs) :
-                tensor_img = to_input(img,True).to(device)
-                with torch.no_grad():
-                    feature, _ = model(tensor_img)
-                features.append(feature)
-    else:
-        for ID in ID_list:
-            path = os.path.join(ID_list_dir, ID)
-            for img_path in sorted(os.listdir(path)):
-                with torch.no_grad():
-                    aligned_rgb_img = align.get_aligned_face(os.path.join(path, img_path))
-                    if aligned_rgb_img is None: continue
-                    bgr_tensor_input = to_input(aligned_rgb_img,False).to(device)
-                    feature, _ = model(bgr_tensor_input)
-                features.append(feature)
+    yoloface = YOLO_FACE(args.fd_weights,device=device)
+    print('face detection model loaded')
+    start = time.time()
+    for ID in ID_list:
+        path = os.path.join(ID_list_dir, ID)
+        aligned_bgr_imgs=yoloface.detect(path)
+        for i,img in enumerate(aligned_bgr_imgs) :
+            tensor_img = to_input(img,True).to(device)
+            with torch.no_grad():
+                feature, _ = model(tensor_img)
+            features.append(feature)
+
     print(f'building time: {time.time()-start}')
     features = torch.cat(features)
     if not os.path.exists(args.database_savedir):

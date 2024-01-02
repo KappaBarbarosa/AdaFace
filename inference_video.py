@@ -1,12 +1,9 @@
 import net
 import torch
 import os
-from face_alignment import align
 import numpy as np
-import time
 import matplotlib.pyplot as plt
 from yolo_face.align import YOLO_FACE
-import cv2
 import warnings
 import sys
 # ignore all the SyntaxWarning
@@ -49,10 +46,10 @@ def save_database_heatmap(data):
 if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_pretrained_model('ir_50').to(device)
-    database_dir = './database_result/database.pt'
+    database_dir = './face_database/database.pt'
     if(os.path.exists(database_dir)):
         database = torch.load(database_dir).to(device)
-        ID_list = sorted(os.listdir('database_result/ID'))
+        ID_list = sorted(os.listdir('face_database/ID'))
         print("ID_list's len: ", len(ID_list))
     else:
         print("ERROR: Face database not found. Please create a face database first.")
