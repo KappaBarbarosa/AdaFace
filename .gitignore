@@ -9,3 +9,5 @@ validation_ijbs
 *.csv
 result
 scripts/run_debug*
+face_database/ID*
+serviceAccountKey.json
