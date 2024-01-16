@@ -85,6 +85,7 @@ class YOLO_FACE:
         self.device =  torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') if device is None else device
         # Load model
         self.model = attempt_load(weights, map_location=self.device)  # load FP32 model
+        self.model.eval()
         self.stride = int(self.model.stride.max())  # model stride
         if isinstance(imgsz, (list, tuple)):
             imgsz[0] = check_img_size(imgsz[0], s=self.stride)
@@ -95,7 +96,8 @@ class YOLO_FACE:
         self.stride = int(self.model.stride.max())
         self.crop_size = crop_size
         self.refrence = get_reference_facial_points(default_square=crop_size[0] == crop_size[1])
-
+    
+    @torch.no_grad()
     def detect(self,source):
         self.webcam =  source.isnumeric() or source.endswith('.txt') or source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
         if self.webcam:
@@ -130,50 +132,62 @@ class YOLO_FACE:
                         facial5points = kpt_tensor_to_list(det[det_index, 6:])
                         warped_face = warp_and_crop_face(np.array(im0s), facial5points, self.refrence, crop_size=self.crop_size)
                         crops.append(warped_face)
-        return crops
-    def show_detect(self,source):
-        self.webcam =  source.isnumeric() or source.endswith('.txt') or source.lower().startswith(('rtsp://', 'rtmp://', 'http://', 'https://'))
-        if self.webcam:
-            cudnn.benchmark = True  # set True to speed up constant image size inference
-            dataset = LoadStreams(source, img_size=self.imgsz, stride=self.stride)
-        else:
-            dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride)
+        return crops 
+    @torch.no_grad()
+    def show_detect(self,source,fr_model,view_img,database,ID_list):
+        cudnn.benchmark = True  # set True to speed up constant image size inference
+        dataset = LoadImages(source, img_size=self.imgsz, stride=self.stride)
         # Run inference
         if self.device.type != 'cpu':
             self.model(torch.zeros(1, 3, self.imgsz, self.imgsz).to(self.device).type_as(next(self.model.parameters())))  # run once
-        crops=[]
-        tests=[]
-        for _, img, im0s, _ in dataset:
+        for j,(path, img, im0s, _ )in enumerate(dataset):
+            print(path)
+            start = time.time()
             img = torch.from_numpy(img).to(self.device).float() 
             img /= 255.0  # 0 - 255 to 0.0 - 1.0
             if img.ndimension() == 3:
                 img = img.unsqueeze(0)
             # Inference
-            t1 = time_synchronized()
+            FDS = time.time()
             pred = self.model(img, augment=False)[0]
             # Apply NMS
             pred = non_max_suppression(pred, 0.25, 0.45)
-            t2 = time_synchronized()
+            FDE = time.time()
+            print(f'     image detect time:',FDE-FDS)
             for i, det in enumerate(pred):  # detections per image
-                im0 =im0s.copy()
-                im1 =im0s.copy()
-                if self.webcam:  # batch_size >= 1
-                    im0 = im0s[i].copy()
-                else:
-                    im0 = im0s.copy()
+                im0 = im0s.copy()
                 if len(det):
                     # Rescale boxes from img_size to im0 size
                     scale_coords(img.shape[2:], det[:, :4], im0.shape, kpt_label=False)
                     scale_coords(img.shape[2:], det[:, 6:], im0.shape, kpt_label=5, step=3)
-                    for det_index, (*xyxy, _, _) in enumerate(reversed(det[:, :6])):
+                    for det_index, (*xyxy, conf, cls)in enumerate(reversed(det[:, :6])):
+                        kpts = det[det_index, 6:]
+                        facial5points = kpt_tensor_to_list(det[len(det) - det_index - 1, 6:])
+                        warped_face = warp_and_crop_face(np.array(im0), facial5points, self.refrence, crop_size=self.crop_size)
+                        bgr_tensor_input = to_input(warped_face,True).to(self.device)
+                        feature, _ = fr_model(bgr_tensor_input)    
+                        similarity_scores = feature @ database.T
                         
-                        facial5points = kpt_tensor_to_list(det[det_index, 6:])
-                        warped_face = warp_and_crop_face(np.array(im0s), facial5points, self.refrence, crop_size=self.crop_size)
-                        crops.append(warped_face)
-                        tests.append(warp_and_crop_face(np.array(im1), facial5points, self.refrence, crop_size= (224, 224)))
-        #             print(f'Done. ({t2 - t1:.3f}s)')
-        # print(f'detect {len(crops)} faces in this source')
-        return crops,tests
+                        max_index = torch.argmax(similarity_scores).item()
+                        
+                        if max_index == len(ID_list):
+                            max_index -= 1
+                        if similarity_scores[0, max_index] >= 0.4:
+                            print("max index: ", max_index)
+                            print(f'Detected: {ID_list[int(max_index)]}')                  
+                            print("similarity: ", similarity_scores[0, max_index])
+                            similarity_scores = similarity_scores.detach().cpu().numpy()
+                            print_label =  ID_list[int(max_index)]+ ":" + str(similarity_scores[0, max_index].round(2))
+                            if view_img:
+                                plot_one_box(xyxy, im0, label=print_label, color=colors(int(max_index), True), kpts=kpts, steps=3, orig_shape=im0.shape[:2])
+                        else:
+                            print("No recognized face")
+                            if view_img:
+                                plot_one_box(xyxy, im0, label="unknown", color=colors(int(max_index), True), kpts=kpts, steps=3, orig_shape=im0.shape[:2])
+                if view_img:
+                    path = path.replace("test_images","test_results")
+                    cv2.imwrite(path, im0)
+            print(f'     total recongnition time:',time.time()-FDE)
     def video_detect(self,source,fr_model,view_img,database,ID_list):
         local_ID = [0] * len(ID_list)
         cam_start_time = time.time()
