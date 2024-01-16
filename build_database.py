@@ -6,10 +6,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 import argparse
+import cv2
 adaface_models = {
-    'ir_50':"retrained/epoch=14-step=166804.ckpt",
+    'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
     'ir_101':"pretrained/adaface_ir101_ms1mv2.ckpt",
-    'epoch14':"pretrained/epoch=14-step=166804.ckpt"
 }
 
 def load_pretrained_model(architecture='ir_50',path=''):
@@ -42,7 +42,7 @@ def save_database_heatmap(data,savepath):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--fr_weights', nargs='+', type=str, default='pretrained/epoch=14-step=166804.ckpt', help='face recongnition model.ckpt path(s)')
+    parser.add_argument('--fr_weights', nargs='+', type=str, default="pretrained/adaface_ir50_masked_ms1mv2.ckpt", help='face recongnition model.ckpt path(s)')
     parser.add_argument('--fd_weights', nargs='+', type=str, default='pretrained/yolov7-tiny.pt', help='face detection model.pt path(s)')
     parser.add_argument('--arch', type=str,default='ir_50',help='Adaface architecture')
     parser.add_argument('--database_path', type=str,default='face_database',help='face database path')
@@ -62,6 +62,15 @@ if __name__ == '__main__':
     for ID in ID_list:
         path = os.path.join(ID_list_dir, ID)
         aligned_bgr_imgs=yoloface.detect(path)
+        if(len(aligned_bgr_imgs)==0):
+            img_path = os.path.join(path, os.listdir(path)[0])
+            print(img_path)
+            img = cv2.imread(img_path)
+            img = cv2.resize(img,(112,112), interpolation=cv2.INTER_AREA)
+            tensor_img = to_input(img,True).to(device)
+            with torch.no_grad():
+                feature, _ = model(tensor_img)
+            features.append(feature)
         for i,img in enumerate(aligned_bgr_imgs) :
             tensor_img = to_input(img,True).to(device)
             with torch.no_grad():
@@ -73,12 +82,13 @@ if __name__ == '__main__':
     if not os.path.exists(args.database_savedir):
         os.makedirs(args.database_savedir)
         print(f"Directory '{args.database_savedir}' created.")
-    pt_spath = os.path.join(args.database_savedir,'database.pt')
+    pt_spath = os.path.join(args.database_savedir,'database_masked.pt')
     heatmap_spath = os.path.join(args.database_savedir,'heatmap.jpg')
     IDlist_spath = os.path.join(args.database_savedir,'ID_list.txt')
     torch.save(features,pt_spath)
     similarity_scores = features @ features.T
-    save_database_heatmap(similarity_scores.cpu().detach().numpy(),savepath=heatmap_spath)
+    print(len(ID_list),features.shape[0])
+    # save_database_heatmap(similarity_scores.cpu().detach().numpy(),savepath=heatmap_spath)
     with open(IDlist_spath, 'w') as file:
         for item in ID_list:
             file.write("%s\n" % item)
