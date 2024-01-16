@@ -70,8 +70,10 @@ This is different from the InsightFace released model which uses RGB color chann
 |CASIA-Webface | [gdrive](https://drive.google.com/drive/folders/1YKu_DJZ_6rSHsZZEMQ6DOdkrUFg-KeET?usp=drive_link)|
 | High Quality Valadaion data | [gdrive](https://drive.google.com/drive/folders/1iBhTtkTfr3We_jbXsTvnZTEmbehuTJjZ?usp=drive_link) |
 | Asian-Celeb     | [gdrive](https://drive.google.com/file/d/1Ih9zxLuqUQOe7d9RcfWd_zU-9cpb6ecF/view?usp=sharing) |
-| IJBC-C          |  [gdrive] (https://drive.google.com/drive/folders/10qqKi8goRpn8oKEHhr8guCHIZwFxAXpz?usp=drive_link) |
-
+| IJBC-C          |  [gdrive](https://drive.google.com/file/d/11oIa2LVdI-Y6YDHmRYBSb-L9FcRCla6X/view?usp=sharing) |
+| IJBC-B          |  [gdrive](https://drive.google.com/file/d/1D2ur3Yh0Kl11g6aXPPIAdABQfrBTyyfV/view?usp=sharing) |
+|MS1MV2           | Due to work  statation issue, it will be uploaded later.|
+                        
 
 # Inference
 ## Download Neccessary Model Weights
@@ -124,7 +126,7 @@ Utilizes matrix multiplication (@ operator) to compute the dot product of the fe
 - Follow the instructions of [firebase official website](https://firebase.google.com/docs/firestore/quickstart?hl=zh-cn).
 - To get *serviceAccountKey.json*: 
     - click "產生新的私密金鑰" 
-    ![image](https://github.com/KappaBarbarosa/AdaFace/blob/master/image.png)
+    ![image](https://hackmd.io/_uploads/BykMVnIPa.png)
     - store the generated file as *serviceAccountKey.json* under this directory.
 - After above operations, run python code below to initialize your database.
 ```
@@ -162,7 +164,7 @@ bash validation_hq/eval_5valsets.sh
 | Arch | Dataset        | Method   | LFW    | CFPFP  | CPLFW   | CALFW   | AGEDB  | AVG       |
 |------|----------------|----------|--------|--------|---------|---------|--------|-----------|
 | R50  | CASIA-WebFace	 | AdaFace  | 0.9942 | 0.9641 | 0.8997  | 0.9323  | 0.9438 | 0.9468    |
-| R50  | CASIA-WebFace (maksed) | AdaFace  | 0.9906 | 0.9315 | 0.8765  | 0.9306  | 0.9195 | 0.9297    |
+| R50  | CASIA-WebFace (masked) | AdaFace  | 0.9906 | 0.9315 | 0.8765  | 0.9306  | 0.9195 | 0.9297    |
 | R50  | MS1MV2         | AdaFace  | 0.9982 | 0.9786 | 0.9283  | 0.9607  | 0.9785 | 0.9688    |
 | R50  | MS1MV2 (masked)     | AdaFace  | 0.9980 | 0.9497 | 0.9181  | 0.9597  | 0.9725 | 0.9596    |
 
