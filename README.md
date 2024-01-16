@@ -124,7 +124,7 @@ Utilizes matrix multiplication (@ operator) to compute the dot product of the fe
 - Follow the instructions of [firebase official website](https://firebase.google.com/docs/firestore/quickstart?hl=zh-cn).
 - To get *serviceAccountKey.json*: 
     - click "產生新的私密金鑰" 
-    ![image](https://github.com/KappaBarbarosa/AdaFace/image.png)
+    ![image](https://github.com/KappaBarbarosa/AdaFace/blob/master/image.png)
     - store the generated file as *serviceAccountKey.json* under this directory.
 - After above operations, run python code below to initialize your database.
 ```
