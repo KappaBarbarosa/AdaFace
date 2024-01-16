@@ -176,7 +176,7 @@ bash validation_hq/eval_5valsets.sh
 | Arch | Dataset        | Method   | LFW    | CFPFP  | CPLFW   | CALFW   | AGEDB  | AVG       |
 |------|----------------|----------|--------|--------|---------|---------|--------|-----------|
 | R50  | CASIA-WebFace	 | AdaFace  | 0.9758 | 0.8959 | 0.8495  | 0.9006  | 0.8775 | 0.8999    |
-| R50  | CASIA-WebFace (maksed) | AdaFace  | 0.9893 | 0.9144 | 0.8658  | 0.9250  | 0.9077 | 0.9204    |
+| R50  | CASIA-WebFace (masked) | AdaFace  | 0.9893 | 0.9144 | 0.8658  | 0.9250  | 0.9077 | 0.9204    |
 | R50  | MS1MV2         | AdaFace  | 0.9925 | 0.9256 | 0.9038  | 0.9478  | 0.9477 | 0.9435    |
 | R50  | MS1MV2 (masked)     | AdaFace  | 0.9950 | 0.9401 | 0.9150  | 0.9538  | 0.9617 | 0.9531    |
 
