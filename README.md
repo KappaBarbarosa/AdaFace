@@ -62,9 +62,6 @@ This is different from the InsightFace released model which uses RGB color chann
 
 # Our masked data
 
-Note that our pretrained model takes the input in BGR color channel. 
-This is different from the InsightFace released model which uses RGB color channel. 
-
 | Dataset    | Link                                                                                         |
 |-----------------------------|----------------------------------------------------------------------------------------------------|
 |CASIA-Webface | [gdrive](https://drive.google.com/drive/folders/1YKu_DJZ_6rSHsZZEMQ6DOdkrUFg-KeET?usp=drive_link)|
