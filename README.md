@@ -70,7 +70,7 @@ This is different from the InsightFace released model which uses RGB color chann
 |CASIA-Webface | [gdrive](https://drive.google.com/drive/folders/1YKu_DJZ_6rSHsZZEMQ6DOdkrUFg-KeET?usp=drive_link)|
 | High Quality Valadaion data | [gdrive](https://drive.google.com/drive/folders/1iBhTtkTfr3We_jbXsTvnZTEmbehuTJjZ?usp=drive_link) |
 | Asian-Celeb     | [gdrive](https://drive.google.com/file/d/1Ih9zxLuqUQOe7d9RcfWd_zU-9cpb6ecF/view?usp=sharing) |
-
+| IJBC-C          |  [gdrive] (https://drive.google.com/drive/folders/10qqKi8goRpn8oKEHhr8guCHIZwFxAXpz?usp=drive_link) |
 
 
 # Inference
