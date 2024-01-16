@@ -60,6 +60,17 @@ This is different from the InsightFace released model which uses RGB color chann
 | R50  | Masked CASIA-WebFace     | [gdrive](https://drive.google.com/file/d/1KhCoyNUITaTh3Ns8r76FDR3H3vyuUjOk/view?usp=sharing) |
 | R50  | Maked MS1MV2     | [gdrive](https://drive.google.com/file/d/1wG1cZO8o20b9jJB81J1ax14kWXDSRsLZ/view?usp=sharing) |
 
+# Our masked data
+
+Note that our pretrained model takes the input in BGR color channel. 
+This is different from the InsightFace released model which uses RGB color channel. 
+
+| Dataset    | Link                                                                                         |
+|-----------------------------|----------------------------------------------------------------------------------------------------|
+|CASIA-Webface | [gdrive](https://drive.google.com/drive/folders/1YKu_DJZ_6rSHsZZEMQ6DOdkrUFg-KeET?usp=drive_link)|
+| High Quality Valadaion data | [gdrive](https://drive.google.com/drive/folders/1iBhTtkTfr3We_jbXsTvnZTEmbehuTJjZ?usp=drive_link) |
+| Asian-Celeb     | [gdrive](https://drive.google.com/file/d/1Ih9zxLuqUQOe7d9RcfWd_zU-9cpb6ecF/view?usp=sharing) |
+
 
 
 # Inference
