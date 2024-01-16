@@ -92,6 +92,14 @@ python build_database.py --database_savedir ./face_database
 
 
 ## Inference by Video
+After building database, if webcam is available:
+```
+python inference_video.py -- source 0 \\ your webcam number
+```
+If yoy want to take raw images as input:
+```
+python inference_frame.py -- source test_images \\ image directory
+```
 below is the code snippet, which can be considered the core of the entire program.
 ```python
 for det_index, (*xyxy, conf, cls)in enumerate(reversed(det[:, :6])):
