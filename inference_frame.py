@@ -2,19 +2,17 @@ import net
 import torch
 import os
 import numpy as np
-import time
 import matplotlib.pyplot as plt
 from yolo_face.align import YOLO_FACE
-import cv2
 import warnings
 import sys
-from yolo_face.utils.plots import colors, plot_one_box
-
+import argparse
 # ignore all the SyntaxWarning
 warnings.filterwarnings("ignore", category=SyntaxWarning)
 
 adaface_models = {
-    'ir_50':"pretrained/adaface_ir50_ms1mv2.ckpt",
+    # 'ir_50':"pretrained/epoch=14-step=166804.ckpt",
+    'ir_50':"pretrained/adaface_ir50_masked_ms1mv2.ckpt",
     'ir_101':"pretrained/adaface_ir101_ms1mv2.ckpt",
 }
 
@@ -47,47 +45,26 @@ def save_database_heatmap(data):
     plt.savefig('iference_heatmap_101.png')
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--fd_weights', nargs='+', type=str, default='pretrained/yolov7-tiny.pt', help='face detection model.pt path(s)')
+    parser.add_argument('--database_path', type=str,default='face_database',help='face database path')
+    parser.add_argument('--database_dir', type=str,default='face_database',help='face database ckpt save path')
+    parser.add_argument('--source', type=str,default='wang_test_images',help='string for img dir, number for webcam')
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_pretrained_model('ir_50').to(device)
-    database_dir = 'face_database/database_ir50.pt'
+    args = parser.parse_args()
+    database_dir = os.path.join(args.database_dir,'database.pt') 
     if(os.path.exists(database_dir)):
         database = torch.load(database_dir).to(device)
-        ID_list = sorted(os.listdir('face_database/ID'))
+        ID_list = sorted(os.listdir(os.path.join(args.database_dir,'ID')))
+        print("ID_list's len: ", len(ID_list))
     else:
         print("ERROR: Face database not found. Please create a face database first.")
         sys.exit(1)
-    test_image_path = 'test_images'
+    # test_image_path = 'face_alignment/test_images'
+    # cap = cv2.VideoCapture(0) # load from webcam
     features = []
     face=[]
-    yoloface = YOLO_FACE('pretrained/yolov7-tiny.pt',device=device)
-    cap = cv2.VideoCapture(0) # load from webcam
-    
-    assert cap.isOpened(), f'Failed to open {0}'
-    ct=0
-    terminate = False
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
-        with torch.no_grad():
-            aligned_bgr_imgs, info = yoloface.frame_detect(frame)
-            for i,img in enumerate(aligned_bgr_imgs) :
-                bgr_tensor_input = to_input(img,True).to(device)
-                feature, _ = model(bgr_tensor_input)    
-                similarity_scores = feature @ database.T
-                max_index = torch.argmax(similarity_scores).item()
-                if similarity_scores[0, max_index] >= 0.4:
-                    *xyxy, conf, cls= info[i]
-                    yoloface.plot_one_box(xyxy, frame, cls,ID_list[int(max_index/3)])
-                    print(f'Detected: {ID_list[int(max_index/3)]}')
-                else:
-                    print("No recognized face")
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    terminate=True
-                    break           
-        cv2.imshow('Webcam', frame)  
-        # terminate
-        if (cv2.waitKey(1) & 0xFF == ord('q')) | terminate:
-            break
-    cap.release()
-    cv2.destroyAllWindows()
+    isyolo = True
+    yoloface = YOLO_FACE(argparse.fd_weights,device=device) if isyolo else None
+    yoloface.show_detect(args.source,fr_model= model,view_img= True,database=database,ID_list=ID_list)
