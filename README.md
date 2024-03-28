@@ -1,7 +1,4 @@
 # Masked AdaFace
-
-
-# Introduction
 The github repository for the final project of 2023 NTHU Machine Learning about Upgraded AdaFace.
 
 # Installation
