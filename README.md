@@ -213,15 +213,3 @@ B: TAR@FAR = 0.01%
 | R50  | MS1MV2  | AdaFace | 90.00              | 96.61              | 92.52              | 97.44              |
 | R50  | MS1MV2 (masked)     | AdaFace | 90.88              | 97.34              | 93.04              | 97.99              |
 
-## Average Result
-
-For average result, refer to 
-
-A: TAR@FAR = 0.0001%
-B: TAR@FAR = 0.01%
-| Arch | Dataset    | Method      | High Quality | $IJBB_A$ | $IJBB_B$ | $IJBC_A$ | $IJBC_B$ | 
-|------|------------|-------------|--------------------|--------------------|--------------------|--------------------|--------------------|
-| R50  | CASIA-WebFace       | AdaFace | 92.34              | NA              | 72.40              | NA              | 68.70              |
-| R50  | CASIA-WebFace (masked)  | AdaFace | 92.51              | NA              | 72.57              | NA              | 71.49              |
-| R50  | MS1MV2  | AdaFace | 95.62              | 92.41              | 97.10              | 94.40              | 97.92              |
-| R50  | MS1MV2 (masked)     | AdaFace | 95.64              | 91.97              | 97.51              | 94.03              | 98.15              |
